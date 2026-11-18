@@ -17,7 +17,6 @@ export default function NotesPage() {
     contenido: '',
   });
   const [archivoPDF, setArchivoPDF] = useState(null);
-  const [filtro, setFiltro] = useState('recientes');
 
   // Formulario de creación de materias (Solo Admin)
   const [nuevaMateria, setNuevaMateria] = useState({
@@ -28,7 +27,7 @@ export default function NotesPage() {
   const obtenerUsuarioActual = () => {
     if (user && (user.id_usuario || user.id)) return user;
     try {
-      const guardado = JSON.parse(localStorage.getItem('usuario') || '{}');
+      const guardado = JSON.parse(localStorage.getItem('usuario') || localStorage.getItem('user') || '{}');
       if (guardado.id_usuario || guardado.id) return guardado;
 
       const jwt = token || localStorage.getItem('token');
@@ -58,8 +57,13 @@ export default function NotesPage() {
     }
   };
 
-  // Cargar publicaciones
+  // Cargar publicaciones (solo las del usuario actual si no es admin)
   const cargarApuntes = async () => {
+    if (!idUsuarioLogueado && !esAdmin) {
+      setApuntes([]);
+      return;
+    }
+
     try {
       const res = await API.get('/apuntes');
       let lista = [];
@@ -71,13 +75,15 @@ export default function NotesPage() {
         lista = res.data.apuntes;
       }
 
-      if (idUsuarioLogueado && !esAdmin) {
+      if (!esAdmin) {
         lista = lista.filter((item) => {
           const idOwner = item.id_usuario || item.usuario_id;
-          return parseInt(idOwner) === parseInt(idUsuarioLogueado);
+          return Number(idOwner) === Number(idUsuarioLogueado);
         });
       }
 
+      // Ordenar siempre del más nuevo al más antiguo sin mostrar barra de filtros
+      lista.sort((a, b) => (b.id_apunte || b.id || 0) - (a.id_apunte || a.id || 0));
       setApuntes(lista);
     } catch (err) {
       console.error('Error al cargar publicaciones:', err);
@@ -255,18 +261,6 @@ export default function NotesPage() {
     const backendUrl = import.meta.env.VITE_API_URL || `http://${host}:4000`;
     return `${backendUrl}${pdfUrl}`;
   };
-
-  const apuntesOrdenados = [...apuntes].sort((a, b) => {
-    if (filtro === 'mejores') {
-      const promA = Number(a.promedio_estrellas || 0);
-      const promB = Number(b.promedio_estrellas || 0);
-      return promB - promA;
-    } else {
-      const idA = a.id_apunte || a.id || 0;
-      const idB = b.id_apunte || b.id || 0;
-      return idB - idA;
-    }
-  });
 
   const reportesPendientes = reportes.filter((r) => (r.estado || 'pendiente') === 'pendiente').length;
 
@@ -449,14 +443,14 @@ export default function NotesPage() {
           )}
         </section>
       ) : (
-        /* PESTAÑA PRINCIPAL: PUBLICAR Y VER APUNTES */
+        /* PESTAÑA PRINCIPAL: PUBLICAR Y VER APUNTES PROPIOS */
         <>
           <header className="notes-page-header">
             <h1>{esAdmin ? 'Moderación y Centro de Apuntes' : 'Mis Apuntes Publicados'}</h1>
             <p>
               {esAdmin
                 ? 'Administra todas las publicaciones de la comunidad o comparte nuevo material.'
-                : 'Gestiona las publicaciones que has compartido y sube nuevo material de estudio.'}
+                : 'Gestiona únicamente las publicaciones que tú has compartido y sube nuevo material de estudio.'}
             </p>
           </header>
 
@@ -553,36 +547,14 @@ export default function NotesPage() {
             </form>
           </section>
 
-          <div className="notes-filter-bar">
-            <div className="filter-title-label">
-              <span>Ordenar por:</span>
-            </div>
-            <div className="filter-buttons-group">
-              <button
-                type="button"
-                className={`filter-btn ${filtro === 'mejores' ? 'active' : ''}`}
-                onClick={() => setFiltro('mejores')}
-              >
-                ⭐ Los Mejores Calificados
-              </button>
-              <button
-                type="button"
-                className={`filter-btn ${filtro === 'recientes' ? 'active' : ''}`}
-                onClick={() => setFiltro('recientes')}
-              >
-                🕒 Apuntes Recientes
-              </button>
-            </div>
-          </div>
-
-          <section className="notes-feed">
-            {apuntesOrdenados.length === 0 ? (
+          <section className="notes-feed" style={{ marginTop: '1.5rem' }}>
+            {apuntes.length === 0 ? (
               <div className="empty-notes-card">
                 <span className="empty-icon">📂</span>
-                <p>No hay apuntes disponibles en este momento.</p>
+                <p>Aún no has publicado ningún apunte. ¡Sube tu primer documento arriba!</p>
               </div>
             ) : (
-              apuntesOrdenados.map((item) => {
+              apuntes.map((item) => {
                 const idApunte = item.id_apunte || item.id;
                 const pdfUrl = item.ruta_archivo || item.url_pdf;
                 const fullPdfUrl = getPdfUrl(pdfUrl);

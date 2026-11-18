@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import API from '../api/api';
 
@@ -8,10 +8,11 @@ export default function Register() {
     nombre_completo: '',
     correo_institucional: '',
     contraseña: '',
-    rol: 'estudiante', // Valor por defecto
-    admin_key: '',    // Clave secreta si elige admin
+    rol: 'estudiante',
+    admin_key: '',
   });
   const [error, setError] = useState('');
+  const [mostrarPass, setMostrarPass] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -25,7 +26,6 @@ export default function Register() {
     e.preventDefault();
     setError('');
 
-    // Validación local del código maestro de Administrador
     if (formData.rol === 'admin' && formData.admin_key !== 'POLI_ADMIN_2026') {
       const msg = 'La clave secreta de administrador es incorrecta';
       setError(msg);
@@ -38,109 +38,252 @@ export default function Register() {
       toast.success('¡Cuenta creada con éxito! Inicia sesión para continuar. 🚀');
       navigate('/login');
     } catch (err) {
-      const msgError = err.response?.data?.mensaje || err.response?.data?.message || 'Error al registrar el usuario';
+      const msgError =
+        err.response?.data?.mensaje ||
+        err.response?.data?.message ||
+        'Error al registrar el usuario';
       setError(msgError);
       toast.error(msgError);
     }
   };
 
+  const inputStyle = {
+    width: '100%',
+    padding: '0.75rem 1rem',
+    borderRadius: '10px',
+    border: '1px solid transparent',
+    backgroundColor: '#dbeafe',
+    color: '#0f172a',
+    fontSize: '0.9rem',
+    outline: 'none',
+    boxSizing: 'border-box',
+  };
+
   return (
-    <div className="main-content" style={{ maxWidth: '420px', margin: '2rem auto' }}>
-      <div 
-        style={{ 
-          backgroundColor: 'var(--card-bg)', 
-          padding: '2rem', 
-          borderRadius: '12px', 
-          border: '1px solid var(--border-color)',
-          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)'
+    <div
+      style={{
+        minHeight: 'calc(100vh - 80px)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '2rem 1rem',
+        background: 'linear-gradient(135deg, #e0f2fe 0%, #f8fafc 50%, #d1fae5 100%)',
+      }}
+    >
+      <div
+        style={{
+          width: '100%',
+          maxWidth: '900px',
+          backgroundColor: '#ffffff',
+          borderRadius: '28px',
+          boxShadow: '0 20px 40px -15px rgba(15, 23, 42, 0.12)',
+          overflow: 'hidden',
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
         }}
       >
-        <h2 style={{ textAlign: 'center', marginBottom: '1.5rem', color: 'var(--text-color)' }}>
-          Crear una Cuenta
-        </h2>
-        
-        {error && (
-          <p style={{ color: '#e11d48', backgroundColor: '#ffe4e6', padding: '0.6rem 1rem', borderRadius: '6px', marginBottom: '1rem', fontSize: '0.9rem' }}>
-            {error}
+        {/* Columna Izquierda: Formulario */}
+        <div style={{ padding: '2.5rem 2.5rem', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+          <div style={{ marginBottom: '1rem' }}>
+            <img
+              src="/logo.png"
+              alt="Study Poli"
+              style={{ height: '44px', width: 'auto', objectFit: 'contain' }}
+            />
+          </div>
+
+          <p style={{ fontSize: '0.85rem', color: '#64748b', margin: '0 0 0.2rem 0' }}>
+            Únete a nuestra comunidad académica 
           </p>
-        )}
+          <h1 style={{ fontSize: '1.9rem', fontWeight: '800', color: '#0f172a', margin: '0 0 1.4rem 0' }}>
+            Crear Cuenta
+          </h1>
 
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          <div>
-            <label style={{ display: 'block', marginBottom: '0.3rem', fontWeight: '500', fontSize: '0.9rem' }}>Nombre Completo</label>
-            <input
-              type="text"
-              name="nombre_completo"
-              placeholder="Tu nombre completo"
-              value={formData.nombre_completo}
-              onChange={handleChange}
-              required
-              style={{ width: '100%', padding: '0.6rem', borderRadius: '6px', border: '1px solid var(--border-color)' }}
-            />
-          </div>
-
-          <div>
-            <label style={{ display: 'block', marginBottom: '0.3rem', fontWeight: '500', fontSize: '0.9rem' }}>Correo Institucional</label>
-            <input
-              type="email"
-              name="correo_institucional"
-              placeholder="usuario@elpoli.edu.co"
-              value={formData.correo_institucional}
-              onChange={handleChange}
-              required
-              style={{ width: '100%', padding: '0.6rem', borderRadius: '6px', border: '1px solid var(--border-color)' }}
-            />
-          </div>
-
-          <div>
-            <label style={{ display: 'block', marginBottom: '0.3rem', fontWeight: '500', fontSize: '0.9rem' }}>Contraseña</label>
-            <input
-              type="password"
-              name="contraseña"
-              placeholder="••••••••"
-              value={formData.contraseña}
-              onChange={handleChange}
-              required
-              style={{ width: '100%', padding: '0.6rem', borderRadius: '6px', border: '1px solid var(--border-color)' }}
-            />
-          </div>
-
-          {/* Selector de Rol */}
-          <div>
-            <label style={{ display: 'block', marginBottom: '0.3rem', fontWeight: '500', fontSize: '0.9rem' }}>Tipo de Usuario</label>
-            <select
-              name="rol"
-              value={formData.rol}
-              onChange={handleChange}
-              style={{ width: '100%', padding: '0.6rem', borderRadius: '6px', border: '1px solid var(--border-color)', backgroundColor: '#fff' }}
+          {error && (
+            <div
+              style={{
+                color: '#be123c',
+                backgroundColor: '#ffe4e6',
+                padding: '0.7rem 1rem',
+                borderRadius: '10px',
+                marginBottom: '1rem',
+                fontSize: '0.85rem',
+                fontWeight: '600',
+              }}
             >
-              <option value="estudiante">Estudiante</option>
-              <option value="admin">Administrador</option>
-            </select>
-          </div>
-
-          {/* Campo condicional para clave de administrador */}
-          {formData.rol === 'admin' && (
-            <div>
-              <label style={{ display: 'block', marginBottom: '0.3rem', fontWeight: '500', fontSize: '0.9rem', color: '#b91c1c' }}>
-                Clave de Autorización Admin
-              </label>
-              <input
-                type="password"
-                name="admin_key"
-                placeholder="Ingresa la clave secreta"
-                value={formData.admin_key}
-                onChange={handleChange}
-                required
-                style={{ width: '100%', padding: '0.6rem', borderRadius: '6px', border: '1px solid #fca5a5', backgroundColor: '#fef2f2' }}
-              />
+               {error}
             </div>
           )}
 
-          <button type="submit" className="btn btn-primary" style={{ marginTop: '0.5rem', padding: '0.75rem' }}>
-            Registrarse
-          </button>
-        </form>
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0.95rem' }}>
+            <div>
+              <label style={{ display: 'block', marginBottom: '0.35rem', fontWeight: '600', fontSize: '0.82rem', color: '#334155' }}>
+                Nombre Completo
+              </label>
+              <input
+                type="text"
+                name="nombre_completo"
+                placeholder="Ej. Salma Hinestroza"
+                value={formData.nombre_completo}
+                onChange={handleChange}
+                required
+                style={inputStyle}
+              />
+            </div>
+
+            <div>
+              <label style={{ display: 'block', marginBottom: '0.35rem', fontWeight: '600', fontSize: '0.82rem', color: '#334155' }}>
+                Correo Institucional
+              </label>
+              <input
+                type="email"
+                name="correo_institucional"
+                placeholder="usuario@elpoli.edu.co"
+                value={formData.correo_institucional}
+                onChange={handleChange}
+                required
+                style={inputStyle}
+              />
+            </div>
+
+            <div>
+              <label style={{ display: 'block', marginBottom: '0.35rem', fontWeight: '600', fontSize: '0.82rem', color: '#334155' }}>
+                Contraseña
+              </label>
+              <div style={{ position: 'relative' }}>
+                <input
+                  type={mostrarPass ? 'text' : 'password'}
+                  name="contraseña"
+                  placeholder="••••••••••••"
+                  value={formData.contraseña}
+                  onChange={handleChange}
+                  required
+                  style={{ ...inputStyle, paddingRight: '2.8rem' }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setMostrarPass(!mostrarPass)}
+                  style={{
+                    position: 'absolute',
+                    right: '12px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontSize: '1rem',
+                    color: '#475569',
+                  }}
+                  title="Mostrar / ocultar contraseña"
+                >
+                  {mostrarPass ? '🙈' : '👁️'}
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <label style={{ display: 'block', marginBottom: '0.35rem', fontWeight: '600', fontSize: '0.82rem', color: '#334155' }}>
+                Tipo de Usuario
+              </label>
+              <select
+                name="rol"
+                value={formData.rol}
+                onChange={handleChange}
+                style={{ ...inputStyle, cursor: 'pointer' }}
+              >
+                <option value="estudiante">Estudiante</option>
+                <option value="admin">Administrador</option>
+              </select>
+            </div>
+
+            {formData.rol === 'admin' && (
+              <div>
+                <label style={{ display: 'block', marginBottom: '0.35rem', fontWeight: '600', fontSize: '0.82rem', color: '#b91c1c' }}>
+                  Clave de Autorización Admin
+                </label>
+                <input
+                  type="password"
+                  name="admin_key"
+                  placeholder="Ingresa la clave secreta"
+                  value={formData.admin_key}
+                  onChange={handleChange}
+                  required
+                  style={{
+                    ...inputStyle,
+                    backgroundColor: '#fee2e2',
+                    border: '1px solid #fca5a5',
+                  }}
+                />
+              </div>
+            )}
+
+            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '0.6rem' }}>
+              <button
+                type="submit"
+                style={{
+                  backgroundColor: '#059669',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '999px',
+                  padding: '0.85rem 2.6rem',
+                  fontSize: '0.92rem',
+                  fontWeight: '700',
+                  letterSpacing: '0.5px',
+                  cursor: 'pointer',
+                  boxShadow: '0 8px 20px -4px rgba(5, 150, 105, 0.45)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.6rem',
+                }}
+              >
+                REGISTRARME <span>→</span>
+              </button>
+            </div>
+          </form>
+
+          <p style={{ textAlign: 'center', marginTop: '1.5rem', fontSize: '0.85rem', color: '#64748b' }}>
+            ¿Ya tienes una cuenta?{' '}
+            <Link to="/login" style={{ color: '#059669', fontWeight: '700', textDecoration: 'none' }}>
+              Inicia sesión aquí
+            </Link>
+          </p>
+        </div>
+
+        {/* Columna Derecha: Panel Pastel Decorativo */}
+        <div
+          style={{
+            backgroundColor: '#bae6fd',
+            padding: '2.5rem 2rem',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            textAlign: 'center',
+          }}
+        >
+          <div
+            style={{
+              width: '185px',
+              height: '185px',
+              borderRadius: '50%',
+              backgroundColor: 'rgba(255, 255, 255, 0.65)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 12px 30px rgba(15, 23, 42, 0.08)',
+              marginBottom: '1.5rem',
+              fontSize: '5.5rem',
+            }}
+          >
+            
+          </div>
+          <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.2rem', fontWeight: '800', color: '#0f172a' }}>
+            Tus apuntes en un solo lugar
+          </h3>
+          <p style={{ margin: 0, fontSize: '0.85rem', color: '#334155', lineHeight: '1.5', maxWidth: '260px' }}>
+            Organiza tus materias, sube resúmenes en PDF y ayuda a otros estudiantes del Poli.
+          </p>
+        </div>
       </div>
     </div>
   );

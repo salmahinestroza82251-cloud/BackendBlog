@@ -135,7 +135,13 @@ export default function ChatPage() {
         <aside className="chat-sidebar">
           <div className="chat-sidebar-header">
             <h2>💬 Mensajes</h2>
-            <p>Comunidad ApuntesPoli</p>
+            <p>Comunidad <Link to="/" className="flex items-center">
+  <img 
+    src="/logo.png" 
+    alt="Study Poli" 
+    className="h-10 w-auto object-contain" 
+  />
+</Link></p>
           </div>
 
           <div className="contacts-list">

@@ -1,21 +1,25 @@
-import { createContext, useState, useEffect } from 'react';
+import { createContext, useState } from 'react';
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  // Simula un usuario y token activo temporalmente
-  const [user, setUser] = useState({ id: 1, name: 'Usuario Prueba' });
-  const [token, setToken] = useState('token-temporal-de-prueba');
+  const [user, setUser] = useState(() => {
+    const savedUser = localStorage.getItem('user');
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
+  const [token, setToken] = useState(() => localStorage.getItem('token') || '');
 
   const login = (userData, userToken) => {
     setUser(userData);
     setToken(userToken);
+    localStorage.setItem('user', JSON.stringify(userData));
     localStorage.setItem('token', userToken);
   };
 
   const logout = () => {
     setUser(null);
     setToken('');
+    localStorage.removeItem('user');
     localStorage.removeItem('token');
   };
 

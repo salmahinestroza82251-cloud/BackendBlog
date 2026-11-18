@@ -15,6 +15,9 @@ export default function Navbar({ busqueda = '', setBusqueda = () => {}, mensajes
   const [enviandoPqr, setEnviandoPqr] = useState(false);
 
   const handleLogout = () => {
+    localStorage.removeItem('usuario');
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
     logout();
     navigate('/login');
   };
@@ -24,7 +27,7 @@ export default function Navbar({ busqueda = '', setBusqueda = () => {}, mensajes
       return user.nombre_completo || user.nombre || user.name || user.nombre_usuario;
     }
     try {
-      const guardado = JSON.parse(localStorage.getItem('usuario') || '{}');
+      const guardado = JSON.parse(localStorage.getItem('usuario') || localStorage.getItem('user') || '{}');
       return (
         guardado.nombre_completo ||
         guardado.nombre ||
@@ -65,8 +68,12 @@ export default function Navbar({ busqueda = '', setBusqueda = () => {}, mensajes
   return (
     <>
       <header className="navbar">
-        <Link to="/" className="navbar-logo">
-          ApuntesPoli
+        <Link to="/" className="navbar-logo" style={{ display: 'flex', alignItems: 'center' }}>
+          <img
+            src="/logo.png"
+            alt="Study Poli"
+            style={{ height: '42px', width: 'auto', objectFit: 'contain' }}
+          />
         </Link>
 
         {/* Barra de Búsqueda Central */}
