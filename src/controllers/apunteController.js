@@ -3,26 +3,39 @@ const pool = require('../config/db');
 exports.crearApunte = async (req, res, next) => {
     try {
         const { titulo, contenido, descripcion, materia, id_usuario, id_materia } = req.body;
-        
+
         // Obtener texto del apunte
         const textoContenido = contenido || descripcion || '';
-        
-        // Guardar la ruta del PDF si viene en req.file
-        const ruta_archivo = req.file ? `/uploads/${req.file.filename}` : null;
 
-        // Asignación segura de IDs
+        // Con CloudinaryStorage, req.file.path contiene la URL pública completa (https://res.cloudinary.com/...)
+        const ruta_archivo = req.file ? req.file.path : null;
+
+        // Asignación segura del ID de usuario
         const usuarioId = id_usuario || 1;
-        const materiaId = id_materia || 1;
+
+        // Buscar el id_materia correspondiente al nombre seleccionado si no viene id_materia
+        let materiaId = id_materia || null;
+        if (!materiaId && materia) {
+            const [rowsMateria] = await pool.query(
+                'SELECT id_materia FROM Materias WHERE nombre_materia = ? LIMIT 1',
+                [materia.trim()]
+            );
+            if (rowsMateria.length > 0) {
+                materiaId = rowsMateria[0].id_materia;
+            }
+        }
+        if (!materiaId) materiaId = 1;
 
         const [result] = await pool.query(
             'INSERT INTO Apuntes (titulo, descripcion, ruta_archivo, id_usuario, id_materia) VALUES (?, ?, ?, ?, ?)',
             [titulo, textoContenido, ruta_archivo, usuarioId, materiaId]
         );
 
-        res.status(201).json({ 
-            success: true, 
-            message: 'Apunte publicado exitosamente', 
-            id_apunte: result.insertId 
+        res.status(201).json({
+            success: true,
+            message: 'Apunte publicado exitosamente',
+            id_apunte: result.insertId,
+            ruta_archivo,
         });
     } catch (error) {
         console.error('Error detallado al crear apunte:', error);
