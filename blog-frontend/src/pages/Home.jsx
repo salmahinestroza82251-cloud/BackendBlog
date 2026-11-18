@@ -116,7 +116,6 @@ export default function HomePage({ busqueda = '' }) {
     setMotivoReporte('');
   };
 
-  // Enviar Reporte de Apunte adaptado exactamente a reporteController.js
   const handleEnviarReporte = async (e) => {
     e.preventDefault();
     if (!motivoReporte.trim()) return;
@@ -144,7 +143,6 @@ export default function HomePage({ busqueda = '' }) {
     }
   };
 
-  // Crear Comentario
   const handleEnviarComentario = async (e) => {
     e.preventDefault();
     if (!nuevoComentario.trim()) return;
@@ -173,7 +171,6 @@ export default function HomePage({ busqueda = '' }) {
     }
   };
 
-  // Guardar Edición de Comentario
   const handleGuardarEdicion = async (idComentario) => {
     if (!textoEditado.trim()) return;
 
@@ -196,7 +193,6 @@ export default function HomePage({ busqueda = '' }) {
     }
   };
 
-  // Borrar Comentario
   const handleEliminarComentario = async (idComentario) => {
     if (!window.confirm('¿Deseas eliminar este comentario?')) return;
 
@@ -213,7 +209,6 @@ export default function HomePage({ busqueda = '' }) {
     }
   };
 
-  // Calificar
   const handleCalificar = async (puntos) => {
     if (!estaAutenticado) {
       mostrarToast('Inicia sesión para calificar', 'error');
@@ -250,7 +245,6 @@ export default function HomePage({ busqueda = '' }) {
 
   const fullPdfUrl = getPdfUrl(apunteSeleccionado);
 
-  // Función auxiliar para eliminar tildes y comparar sin importar mayúsculas/acentos
   const normalizar = (str) =>
     String(str || '')
       .normalize('NFD')
@@ -282,44 +276,8 @@ export default function HomePage({ busqueda = '' }) {
         </div>
       )}
 
-      {/* Banner Hero Estilo Evernote */}
-      <section className="hero-banner-evernote">
-        <div className="hero-banner-content">
-          <div className="hero-text-block">
-            <span className="hero-tag-badge">📚 Comunidad Universitaria</span>
-            <h1 className="hero-main-title">
-              Tus apuntes. <br />
-              Organizados. <br />
-              <span>Sin esfuerzo.</span>
-            </h1>
-            <p className="hero-subtext">
-              Explora, comparte y califica el mejor material de estudio académico del Poli en un solo lugar.
-            </p>
-          </div>
-
-          <div className="hero-decorative-card">
-            <div className="decorative-card-header">
-              <div className="card-window-dots">
-                <span className="dot red"></span>
-                <span className="dot yellow"></span>
-                <span className="dot green"></span>
-              </div>
-              <span className="badge-highlight">⭐ Destacado</span>
-            </div>
-            <div className="decorative-card-body">
-              <h3>Estructuras de Datos & Algoritmos</h3>
-              <p>Resúmenes completos con diagramas, ejercicios resueltos y guías de examen.</p>
-              <div className="decorative-card-footer">
-                <span>Por Estudiantes Poli</span>
-                <span className="rating-pill">★ 4.9</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Sección del Listado Principal */}
-      <main className="main-feed-container">
+      <main className="main-feed-container" style={{ paddingTop: '2.2rem' }}>
         {!busqueda && recomendados.length > 0 && (
           <section className="recommended-section">
             <div className="feed-header-flex">
