@@ -1,4 +1,5 @@
 import { useState, useEffect, useContext, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import API from '../api/api';
 import './Chat.css';
@@ -26,7 +27,7 @@ export default function ChatPage() {
         const payload = JSON.parse(atob(jwt.split('.')[1]));
         return payload.id || payload.id_usuario || null;
       }
-      const guardado = JSON.parse(localStorage.getItem('usuario') || '{}');
+      const guardado = JSON.parse(localStorage.getItem('usuario') || localStorage.getItem('user') || '{}');
       return guardado.id || guardado.id_usuario || null;
     } catch {
       return null;
@@ -48,8 +49,8 @@ export default function ChatPage() {
       lista.forEach((apunte) => {
         const idAutor = apunte.id_usuario || apunte.usuario_id || apunte.autor_id;
         const nombreAutor = apunte.autor || apunte.nombre_completo || `Estudiante #${idAutor}`;
-        if (idAutor && (!miId || parseInt(idAutor) !== parseInt(miId)) && !mapaUsuarios.has(idAutor)) {
-          mapaUsuarios.set(idAutor, { id: Number(idAutor), nombre: nombreAutor });
+        if (idAutor && (!miId || parseInt(idAutor) !== parseInt(miId)) && !mapaUsuarios.has(Number(idAutor))) {
+          mapaUsuarios.set(Number(idAutor), { id: Number(idAutor), nombre: nombreAutor });
         }
       });
 
@@ -135,13 +136,7 @@ export default function ChatPage() {
         <aside className="chat-sidebar">
           <div className="chat-sidebar-header">
             <h2>💬 Mensajes</h2>
-            <p>Comunidad <Link to="/" className="flex items-center">
-  <img 
-    src="/logo.png" 
-    alt="Study Poli" 
-    className="h-10 w-auto object-contain" 
-  />
-</Link></p>
+            <p>Comunidad Study Poli</p>
           </div>
 
           <div className="contacts-list">
