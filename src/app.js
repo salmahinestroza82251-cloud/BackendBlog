@@ -19,7 +19,11 @@ const app = express();
 
 // 3. Middlewares
 //  Permite que los archivos estáticos (PDFs) se puedan abrir desde React (localhost:5173)
-app.use(helmet({ crossOriginResourcePolicy: false, contentSecurityPolicy: false }));
+app.use(helmet({
+  crossOriginResourcePolicy: false,
+  contentSecurityPolicy: false,
+  frameguard: false
+}));
 app.use(cors());
 app.use(morgan('dev'));
 app.use(express.json());
