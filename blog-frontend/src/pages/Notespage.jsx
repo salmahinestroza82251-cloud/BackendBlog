@@ -252,7 +252,8 @@ export default function NotesPage() {
     if (!pdfUrl || pdfUrl === 'sin_archivo.pdf') return null;
     if (pdfUrl.startsWith('http')) return pdfUrl;
     const host = window.location.hostname || 'localhost';
-    return `http://${host}:4000${pdfUrl}`;
+    const backendUrl = import.meta.env.VITE_API_URL || `http://${host}:4000`;
+    return `${backendUrl}${pdfUrl}`;
   };
 
   const apuntesOrdenados = [...apuntes].sort((a, b) => {

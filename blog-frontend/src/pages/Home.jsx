@@ -244,7 +244,8 @@ export default function HomePage({ busqueda = '' }) {
     if (!pdfUrl.startsWith('/')) pdfUrl = `/${pdfUrl}`;
 
     const host = window.location.hostname || 'localhost';
-    return `http://${host}:4000${pdfUrl}`;
+    const backendUrl = import.meta.env.VITE_API_URL || `http://${host}:4000`;
+    return `${backendUrl}${pdfUrl}`;
   };
 
   const fullPdfUrl = getPdfUrl(apunteSeleccionado);
