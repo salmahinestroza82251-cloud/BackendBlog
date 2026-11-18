@@ -518,7 +518,7 @@ export default function NotesPage() {
               </div>
 
               <div className="form-group">
-                <label>Adjuntar Documento PDF (Opcional)</label>
+                <label>Adjuntar Documento PDF </label>
                 <div className={`file-dropzone ${archivoPDF ? 'has-file' : ''}`}>
                   <input
                     type="file"
