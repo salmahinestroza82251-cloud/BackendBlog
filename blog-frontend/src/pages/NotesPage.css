@@ -1,0 +1,400 @@
+/* src/pages/NotesPage.css */
+
+.notes-page-wrapper {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 1rem 4rem 1rem;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: #0f172a;
+}
+
+/* Banner Modo Admin */
+.admin-status-banner {
+  background-color: #fef3c7;
+  border: 1px solid #f59e0b;
+  color: #92400e;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  margin-bottom: 2rem;
+  font-weight: 600;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+/* Encabezado */
+.notes-page-header {
+  margin-bottom: 2rem;
+  text-align: left;
+}
+
+.notes-page-header h1 {
+  font-size: 2.1rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 0.4rem 0;
+}
+
+.notes-page-header p {
+  color: #64748b;
+  font-size: 1rem;
+  margin: 0;
+}
+
+/* Tarjeta del Formulario */
+.publish-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 2rem;
+  margin-bottom: 2.5rem;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+}
+
+.publish-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 1.5rem;
+}
+
+.publish-card-header .card-icon {
+  font-size: 1.5rem;
+}
+
+.publish-card-header h2 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin: 0;
+  color: #0f172a;
+}
+
+.publish-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.form-grid-two {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.2rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.form-group label {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #334155;
+}
+
+.form-group input[type="text"],
+.form-group textarea {
+  width: 100%;
+  padding: 0.75rem 0.9rem;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  font-size: 0.92rem;
+  color: #0f172a;
+  background-color: #f8fafc;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+}
+
+.form-group input[type="text"]:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #10b981;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+}
+
+/* Dropzone de Archivo PDF */
+.file-dropzone {
+  position: relative;
+  border: 2px dashed #cbd5e1;
+  border-radius: 10px;
+  background-color: #f8fafc;
+  padding: 1rem;
+  text-align: center;
+  transition: border-color 0.2s, background-color 0.2s;
+  cursor: pointer;
+}
+
+.file-dropzone.has-file {
+  border-color: #10b981;
+  background-color: #ecfdf5;
+}
+
+.file-dropzone input[type="file"] {
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.file-dropzone-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.file-dropzone-label .upload-icon {
+  font-size: 1.2rem;
+}
+
+.btn-submit-notes {
+  width: fit-content;
+  padding: 0.8rem 1.8rem;
+  background-color: #059669;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  transition: background-color 0.2s, transform 0.1s;
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);
+}
+
+.btn-submit-notes:hover {
+  background-color: #047857;
+  transform: translateY(-1px);
+}
+
+/* Barra de Filtros */
+.notes-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.8rem;
+}
+
+.filter-title-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.filter-buttons-group {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.filter-btn {
+  padding: 0.5rem 1.1rem;
+  border-radius: 20px;
+  border: 1px solid #cbd5e1;
+  background-color: #ffffff;
+  color: #475569;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.filter-btn:hover {
+  background-color: #f1f5f9;
+}
+
+.filter-btn.active {
+  background-color: #059669;
+  color: #ffffff;
+  border-color: #059669;
+  box-shadow: 0 4px 10px rgba(5, 150, 105, 0.2);
+}
+
+/* Feed de Apuntes */
+.notes-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.note-item-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.note-item-card:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.05);
+}
+
+.note-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.materia-badge {
+  font-size: 0.75rem;
+  background-color: #ecfdf5;
+  color: #047857;
+  padding: 0.2rem 0.65rem;
+  border-radius: 12px;
+  font-weight: 700;
+  display: inline-block;
+  margin-bottom: 0.4rem;
+}
+
+.note-title {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.btn-admin-delete {
+  background-color: #ffe4e6;
+  color: #e11d48;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.8rem;
+  transition: background-color 0.2s;
+}
+
+.btn-admin-delete:hover {
+  background-color: #fecdd3;
+}
+
+.note-body-text {
+  margin: 0;
+  color: #475569;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+/* Badge PDF */
+.pdf-download-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background-color: #f0fdf4;
+  border: 1px solid #a7f3d0;
+  color: #047857;
+  padding: 0.5rem 0.9rem;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.88rem;
+  text-decoration: none;
+  transition: background-color 0.2s;
+}
+
+.pdf-download-badge:hover {
+  background-color: #dcfce7;
+}
+
+/* Footer de la tarjeta */
+.note-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 0.8rem;
+  margin-top: 0.2rem;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+}
+
+.rating-interactive-box {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.rating-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #64748b;
+  margin-right: 0.2rem;
+}
+
+.stars-buttons-row {
+  display: flex;
+  gap: 0.1rem;
+}
+
+.star-vote-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.3rem;
+  color: #f59e0b;
+  padding: 0 0.15rem;
+  transition: transform 0.15s ease;
+}
+
+.star-vote-btn:hover {
+  transform: scale(1.2);
+}
+
+.rating-score-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  background-color: #fffbeb;
+  border: 1px solid #fef3c7;
+  color: #b45309;
+  padding: 0.3rem 0.7rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+.rating-score-pill .star-symbol {
+  color: #f59e0b;
+}
+
+.rating-score-pill .score-max {
+  color: #d97706;
+  font-size: 0.78rem;
+}
+
+.empty-notes-card {
+  text-align: center;
+  padding: 3rem 1rem;
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px dashed #cbd5e1;
+  color: #64748b;
+}
+
+.empty-notes-card .empty-icon {
+  font-size: 2.5rem;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+/* Responsivo */
+@media (max-width: 640px) {
+  .form-grid-two {
+    grid-template-columns: 1fr;
+  }
+
+  .notes-filter-bar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .note-card-footer {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
