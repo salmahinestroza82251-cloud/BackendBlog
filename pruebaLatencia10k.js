@@ -29,7 +29,7 @@ async function ejecutarPrueba10k() {
         const inicioSelectAntes = performance.now();
         await pool.query("SELECT * FROM Apuntes WHERE titulo LIKE '%Algoritmos%' LIMIT 50");
         const finSelectAntes = performance.now();
-        console.log(`⏱️ Latencia SELECT inicial: ${(finSelectAntes - inicioSelectAntes).toFixed(2)} ms`);
+        console.log(` Latencia SELECT inicial: ${(finSelectAntes - inicioSelectAntes).toFixed(2)} ms`);
 
         // 3. Preparar 10.000 registros en memoria
         const totalRegistros = 10000;
@@ -78,7 +78,7 @@ async function ejecutarPrueba10k() {
         console.log('=============================================================\n');
 
     } catch (error) {
-        console.error('❌ Error durante la prueba:', error.message);
+        console.error(' Error durante la prueba:', error.message);
     } finally {
         process.exit();
     }

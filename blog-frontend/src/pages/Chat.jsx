@@ -62,6 +62,7 @@ export default function ChatPage() {
 
   useEffect(() => {
     if (!receptor) return;
+    setMensajes([]); // Limpia los mensajes del contacto anterior al instante
     obtenerHistorial(receptor.id, true);
 
     const intervalo = setInterval(() => {
