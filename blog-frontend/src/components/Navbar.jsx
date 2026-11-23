@@ -1,12 +1,17 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { useContext, useState } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { toast } from 'react-toastify';
+import { driver } from 'driver.js';
+import 'driver.js/dist/driver.css';
 import API from '../api/api';
 
 export default function Navbar({ busqueda = '', setBusqueda = () => {}, mensajesNoLeidos = 0 }) {
   const { token, user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
+
+  // Estado menú móvil
+  const [menuMovilAbierto, setMenuMovilAbierto] = useState(false);
 
   // Modal PQR / Solicitar materia
   const [modalPqrAbierto, setModalPqrAbierto] = useState(false);
@@ -14,10 +19,82 @@ export default function Navbar({ busqueda = '', setBusqueda = () => {}, mensajes
   const [mensajePqr, setMensajePqr] = useState('');
   const [enviandoPqr, setEnviandoPqr] = useState(false);
 
+  const iniciarTourGuiado = () => {
+    setMenuMovilAbierto(false);
+    const driverObj = driver({
+      showProgress: true,
+      nextBtnText: 'Siguiente →',
+      prevBtnText: '← Anterior',
+      doneBtnText: '¡Entendido!',
+      progressText: 'Paso {{current}} de {{total}}',
+      steps: [
+        {
+          element: '#tour-buscador',
+          popover: {
+            title: '🔍 Buscador Inteligente',
+            description: 'Escribe aquí el nombre de una materia, tema o palabra clave para filtrar los apuntes al instante.',
+            side: 'bottom',
+            align: 'center',
+          },
+        },
+        {
+          element: '#tour-inicio',
+          popover: {
+            title: '🏠 Feed de Apuntes',
+            description: 'Explora todos los documentos compartidos por la comunidad, ábrelos en pantalla completa, califícalos y deja comentarios.',
+            side: 'bottom',
+          },
+        },
+        {
+          element: '#tour-mis-apuntes',
+          popover: {
+            title: '📚 Mis Apuntes y Publicaciones',
+            description: 'Desde aquí puedes subir tus propios resúmenes en PDF y administrar tus archivos compartidos.',
+            side: 'bottom',
+          },
+        },
+        {
+          element: '#tour-pqr',
+          popover: {
+            title: '📩 Buzón PQR y Solicitud de Materias',
+            description: '¿No encuentras tu asignatura en la lista o tienes una queja? Solicita aquí la creación de nuevas materias al Administrador.',
+            side: 'bottom',
+          },
+        },
+        {
+          element: '#tour-chat',
+          popover: {
+            title: '💬 Chat Académico Privado',
+            description: 'Comunícate directamente con otros estudiantes del Poli para resolver dudas o coordinar grupos de estudio.',
+            side: 'bottom',
+          },
+        },
+      ],
+      onDestroyed: () => {
+        localStorage.setItem('studypoli_tour_visto', 'true');
+      },
+    });
+
+    driverObj.drive();
+  };
+
+  useEffect(() => {
+    if (token) {
+      const yaVioTour = localStorage.getItem('studypoli_tour_visto');
+      if (!yaVioTour) {
+        const timer = setTimeout(() => {
+          iniciarTourGuiado();
+        }, 800);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [token]);
+
   const handleLogout = () => {
     localStorage.removeItem('usuario');
     localStorage.removeItem('user');
     localStorage.removeItem('token');
+    setMenuMovilAbierto(false);
     logout();
     navigate('/login');
   };
@@ -68,61 +145,71 @@ export default function Navbar({ busqueda = '', setBusqueda = () => {}, mensajes
   return (
     <>
       <header className="navbar">
-        <Link to="/" className="navbar-logo" style={{ display: 'flex', alignItems: 'center' }}>
-          <img
-            src="/logo.png"
-            alt="Study Poli"
-            style={{ height: '42px', width: 'auto', objectFit: 'contain' }}
-          />
-        </Link>
+        <div className="navbar-top-row">
+          <Link to="/" className="navbar-logo" style={{ display: 'flex', alignItems: 'center' }}>
+            <img
+              src="/logo.png"
+              alt="Study Poli"
+              style={{ height: '42px', width: 'auto', objectFit: 'contain' }}
+            />
+          </Link>
 
-        {/* Barra de Búsqueda Central */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            backgroundColor: '#f1f5f9',
-            border: '1px solid #cbd5e1',
-            borderRadius: '20px',
-            padding: '0.35rem 0.9rem',
-            width: '260px',
-          }}
-        >
-          <span style={{ fontSize: '0.85rem' }}>🔍</span>
-          <input
-            type="text"
-            placeholder="Buscar por título o materia..."
-            value={busqueda}
-            onChange={(e) => setBusqueda(e.target.value)}
-            style={{
-              border: 'none',
-              background: 'transparent',
-              outline: 'none',
-              width: '100%',
-              marginLeft: '0.5rem',
-              fontSize: '0.85rem',
-              color: '#0f172a',
-            }}
-          />
+          {/* Barra de Búsqueda Central */}
+          <div id="tour-buscador" className="navbar-search-box">
+            <span style={{ fontSize: '0.85rem' }}>🔍</span>
+            <input
+              type="text"
+              placeholder="Buscar por título o materia..."
+              value={busqueda}
+              onChange={(e) => setBusqueda(e.target.value)}
+              style={{
+                border: 'none',
+                background: 'transparent',
+                outline: 'none',
+                width: '100%',
+                marginLeft: '0.5rem',
+                fontSize: '0.85rem',
+                color: '#0f172a',
+              }}
+            />
+          </div>
+
+          {/* Botón Hamburguesa (Solo visible en celulares) */}
+          <button
+            type="button"
+            className="navbar-hamburger-btn"
+            onClick={() => setMenuMovilAbierto(!menuMovilAbierto)}
+            aria-label="Abrir menú"
+          >
+            {menuMovilAbierto ? '✕' : '☰'}
+          </button>
         </div>
 
-        <nav className="navbar-links">
-          <Link to="/" className="nav-link">Inicio</Link>
+        <nav className={`navbar-links ${menuMovilAbierto ? 'mobile-open' : ''}`}>
+          <Link to="/" id="tour-inicio" className="nav-link" onClick={() => setMenuMovilAbierto(false)}>
+            Inicio
+          </Link>
 
           {token ? (
             <>
-              <Link to="/notes" className="nav-link">Mis Apuntes</Link>
+              <Link to="/notes" id="tour-mis-apuntes" className="nav-link" onClick={() => setMenuMovilAbierto(false)}>
+                Mis Apuntes
+              </Link>
 
               {/* Botón PQR / Solicitar Materia */}
               <button
                 type="button"
-                onClick={() => setModalPqrAbierto(true)}
+                id="tour-pqr"
+                onClick={() => {
+                  setMenuMovilAbierto(false);
+                  setModalPqrAbierto(true);
+                }}
                 style={{
                   background: '#fef3c7',
                   color: '#92400e',
                   border: '1px solid #fde68a',
                   borderRadius: '16px',
-                  padding: '0.3rem 0.7rem',
+                  padding: '0.35rem 0.75rem',
                   fontSize: '0.8rem',
                   fontWeight: '600',
                   cursor: 'pointer',
@@ -135,10 +222,13 @@ export default function Navbar({ busqueda = '', setBusqueda = () => {}, mensajes
               {/* Icono de Chat Privado */}
               <Link
                 to="/chat"
-                style={{ position: 'relative', fontSize: '1.25rem', textDecoration: 'none' }}
+                id="tour-chat"
+                onClick={() => setMenuMovilAbierto(false)}
+                style={{ position: 'relative', fontSize: '1.25rem', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}
                 title="Chat Privado"
               >
                 <span>💬</span>
+                <span className="mobile-only-label">Chat</span>
                 {mensajesNoLeidos > 0 && (
                   <span
                     style={{
@@ -158,6 +248,26 @@ export default function Navbar({ busqueda = '', setBusqueda = () => {}, mensajes
                 )}
               </Link>
 
+              {/* Botón para repetir el Tour Guiado */}
+              <button
+                type="button"
+                onClick={iniciarTourGuiado}
+                style={{
+                  background: '#e0f2fe',
+                  color: '#0369a1',
+                  border: '1px solid #bae6fd',
+                  borderRadius: '50%',
+                  width: '28px',
+                  height: '28px',
+                  fontWeight: '800',
+                  fontSize: '0.82rem',
+                  cursor: 'pointer',
+                }}
+                title="Ver guía interactiva de la plataforma"
+              >
+                ?
+              </button>
+
               <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>
                 Hola, <strong>{nombreUsuario}</strong>
               </span>
@@ -167,10 +277,10 @@ export default function Navbar({ busqueda = '', setBusqueda = () => {}, mensajes
             </>
           ) : (
             <>
-              <Link to="/login" className="btn btn-outline">
+              <Link to="/login" className="btn btn-outline" onClick={() => setMenuMovilAbierto(false)}>
                 Iniciar Sesión
               </Link>
-              <Link to="/register" className="btn btn-primary">
+              <Link to="/register" className="btn btn-primary" onClick={() => setMenuMovilAbierto(false)}>
                 Registrarse
               </Link>
             </>

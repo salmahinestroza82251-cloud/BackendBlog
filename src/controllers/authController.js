@@ -75,9 +75,13 @@ exports.registrar = async (req, res, next) => {
 
         if (errorEmail) {
             console.error('Error al enviar correo con Resend:', errorEmail);
+            let mensajeEspanol = 'No se pudo enviar el correo de verificación. Verifica que el correo sea válido.';
+            if (errorEmail.message && errorEmail.message.includes('only send testing emails')) {
+                mensajeEspanol = 'En modo de prueba solo se pueden enviar códigos al correo administrador registrado en Resend.';
+            }
             return res.status(400).json({
                 success: false,
-                message: `No se pudo enviar el correo de verificación: ${errorEmail.message}`,
+                message: mensajeEspanol,
             });
         }
 

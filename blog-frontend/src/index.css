@@ -162,3 +162,132 @@ body {
   color: var(--primary);
   font-weight: 600;
 }
+
+/* =========================================================
+   ADAPTACIÓN RESPONSIVE (PC, TABLET Y CELULAR)
+   ========================================================= */
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.navbar-top-row {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.navbar-search-box {
+  display: flex;
+  align-items: center;
+  background-color: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  border-radius: 20px;
+  padding: 0.35rem 0.9rem;
+  width: 260px;
+}
+
+.navbar-hamburger-btn {
+  display: none;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 0.4rem 0.7rem;
+  font-size: 1.25rem;
+  cursor: pointer;
+  color: #0f172a;
+}
+
+.mobile-only-label {
+  display: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-color);
+}
+
+@media (max-width: 960px) {
+  .navbar {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0.8rem 1rem;
+  }
+
+  .navbar-top-row {
+    justify-content: space-between;
+    width: 100%;
+    gap: 0.6rem;
+  }
+
+  .navbar-search-box {
+    flex: 1;
+    width: auto;
+    min-width: 130px;
+  }
+
+  .navbar-hamburger-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .navbar-links {
+    display: none;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    padding-top: 1rem;
+    margin-top: 0.8rem;
+    border-top: 1px solid var(--border-color);
+    gap: 0.9rem;
+  }
+
+  .navbar-links.mobile-open {
+    display: flex;
+  }
+
+  .mobile-only-label {
+    display: inline;
+  }
+
+  /* Apuntes y Grids en móvil */
+  .apuntes-grid,
+  .posts-grid,
+  .form-grid-two {
+    grid-template-columns: 1fr !important;
+  }
+
+  .hero-banner-content {
+    grid-template-columns: 1fr !important;
+    gap: 1.5rem !important;
+    text-align: center;
+  }
+
+  .hero-main-title,
+  .hero-title {
+    font-size: 1.9rem !important;
+  }
+
+  /* Modal Dual Pane (PDF + Comentarios) apilado en móvil */
+  .modal-dual-pane-container {
+    grid-template-columns: 1fr !important;
+    height: 92vh !important;
+    overflow-y: auto !important;
+    padding: 1.2rem !important;
+  }
+
+  .modal-left-column {
+    border-right: none !important;
+    border-bottom: 1px solid #e2e8f0;
+    padding-right: 0 !important;
+    padding-bottom: 1rem;
+    height: auto !important;
+  }
+
+  .pdf-viewer-wrapper {
+    min-height: 280px;
+  }
+
+  .modal-right-column {
+    height: auto !important;
+  }
+}
