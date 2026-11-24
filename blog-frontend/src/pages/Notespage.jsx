@@ -10,6 +10,7 @@ export default function NotesPage() {
   const [materias, setMaterias] = useState([]);
   const [reportes, setReportes] = useState([]);
   const [vistaAdmin, setVistaAdmin] = useState('apuntes'); // 'apuntes' | 'materias' | 'reportes'
+  const [apunteInspeccionado, setApunteInspeccionado] = useState(null); // Modal vista previa del apunte reportado
 
   const [formData, setFormData] = useState({
     titulo: '',
@@ -57,7 +58,7 @@ export default function NotesPage() {
     }
   };
 
-  // Cargar publicaciones (solo las del usuario actual si no es admin)
+  // Cargar publicaciones (todas si es admin, solo propias si es estudiante)
   const cargarApuntes = async () => {
     if (!idUsuarioLogueado && !esAdmin) {
       setApuntes([]);
@@ -82,7 +83,6 @@ export default function NotesPage() {
         });
       }
 
-      // Ordenar siempre del más nuevo al más antiguo sin mostrar barra de filtros
       lista.sort((a, b) => (b.id_apunte || b.id || 0) - (a.id_apunte || a.id || 0));
       setApuntes(lista);
     } catch (err) {
@@ -247,6 +247,7 @@ export default function NotesPage() {
     try {
       await API.delete(`/apuntes/${id}`);
       toast.success('Apunte eliminado exitosamente');
+      setApunteInspeccionado(null);
       cargarApuntes();
     } catch (err) {
       console.error('Error al eliminar apunte:', err);
@@ -379,12 +380,18 @@ export default function NotesPage() {
               const estadoActual = rep.estado || 'pendiente';
               const tipo = rep.tipo_reporte || 'apunte';
               const esPqr = tipo !== 'apunte';
+              const idApunteReportado = Number(rep.id_objeto_reportado || rep.id_apunte);
+
+              // Buscar el apunte real en el catálogo cargado para mostrar título y permitir vista previa
+              const apunteEncontrado = !esPqr
+                ? apuntes.find((a) => Number(a.id_apunte || a.id) === idApunteReportado)
+                : null;
 
               return (
                 <article key={idRep} className="note-item-card">
                   <div className="note-card-header">
                     <div>
-                      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.4rem' }}>
+                      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.4rem', flexWrap: 'wrap' }}>
                         <span
                           className="materia-badge"
                           style={{
@@ -403,15 +410,33 @@ export default function NotesPage() {
                         >
                           Estado: {estadoActual.toUpperCase()}
                         </span>
+                        {apunteEncontrado && (
+                          <span className="materia-badge">
+                            {apunteEncontrado.nombre_materia || apunteEncontrado.materia}
+                          </span>
+                        )}
                       </div>
+
                       <h3 className="note-title">
                         {esPqr
                           ? 'Solicitud / PQR de Estudiante'
-                          : `Reporte sobre Apunte #${rep.id_objeto_reportado || rep.id_apunte}`}
+                          : apunteEncontrado
+                            ? `Reporte sobre: "${apunteEncontrado.titulo}" (#${idApunteReportado})`
+                            : `Reporte sobre Apunte #${idApunteReportado} (Ya eliminado)`}
                       </h3>
                     </div>
 
                     <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+                      {!esPqr && apunteEncontrado && (
+                        <button
+                          type="button"
+                          onClick={() => setApunteInspeccionado(apunteEncontrado)}
+                          className="filter-btn"
+                          style={{ backgroundColor: '#e0f2fe', color: '#0369a1', border: '1px solid #bae6fd' }}
+                        >
+                          👁️ Ver Apunte
+                        </button>
+                      )}
                       {estadoActual === 'pendiente' && (
                         <button
                           type="button"
@@ -422,10 +447,10 @@ export default function NotesPage() {
                           ✅ Marcar Resuelto
                         </button>
                       )}
-                      {!esPqr && (rep.id_objeto_reportado || rep.id_apunte) && (
+                      {!esPqr && apunteEncontrado && (
                         <button
                           type="button"
-                          onClick={() => handleEliminarApunte(rep.id_objeto_reportado || rep.id_apunte)}
+                          onClick={() => handleEliminarApunte(idApunteReportado)}
                           className="btn-admin-delete"
                         >
                           🗑️ Eliminar Apunte
@@ -435,7 +460,7 @@ export default function NotesPage() {
                   </div>
 
                   <p className="note-body-text">
-                    <strong>Mensaje:</strong> {rep.motivo || rep.descripcion}
+                    <strong>Motivo del reporte:</strong> {rep.motivo || rep.descripcion}
                   </p>
                 </article>
               );
@@ -626,6 +651,109 @@ export default function NotesPage() {
             )}
           </section>
         </>
+      )}
+
+      {/* MODAL VISTA PREVIA DEL APUNTE REPORTADO (PARA AUDITORÍA ADMIN) */}
+      {apunteInspeccionado && (
+        <div
+          onClick={() => setApunteInspeccionado(null)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(15, 23, 42, 0.6)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 9999,
+            padding: '1rem',
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              backgroundColor: '#ffffff',
+              borderRadius: '16px',
+              maxWidth: '580px',
+              width: '100%',
+              padding: '1.5rem',
+              boxShadow: '0 20px 25px -5px rgba(0,0,0,0.2)',
+              maxHeight: '85vh',
+              overflowY: 'auto',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.8rem' }}>
+              <span className="materia-badge">
+                {apunteInspeccionado.nombre_materia || apunteInspeccionado.materia || 'General'}
+              </span>
+              <button
+                type="button"
+                onClick={() => setApunteInspeccionado(null)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  fontSize: '1.2rem',
+                  cursor: 'pointer',
+                  color: '#64748b',
+                }}
+              >
+                ✕
+              </button>
+            </div>
+
+            <h2 style={{ fontSize: '1.25rem', color: '#0f172a', marginBottom: '0.5rem' }}>
+              {apunteInspeccionado.titulo}
+            </h2>
+            <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '1rem' }}>
+              ID Publicación: #{apunteInspeccionado.id_apunte || apunteInspeccionado.id}
+              {apunteInspeccionado.autor ? ` • Autor: ${apunteInspeccionado.autor}` : ''}
+            </p>
+
+            <div
+              style={{
+                backgroundColor: '#f8fafc',
+                padding: '1rem',
+                borderRadius: '10px',
+                border: '1px solid #e2e8f0',
+                color: '#334155',
+                lineHeight: '1.5',
+                marginBottom: '1rem',
+                whiteSpace: 'pre-wrap',
+              }}
+            >
+              {apunteInspeccionado.contenido || apunteInspeccionado.descripcion || 'Sin descripción textual.'}
+            </div>
+
+            {getPdfUrl(apunteInspeccionado.ruta_archivo || apunteInspeccionado.url_pdf) && (
+              <div style={{ marginBottom: '1.2rem' }}>
+                <a
+                  href={getPdfUrl(apunteInspeccionado.ruta_archivo || apunteInspeccionado.url_pdf)}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="pdf-download-badge"
+                >
+                  📎 Abrir documento PDF adjunto para revisar
+                </a>
+              </div>
+            )}
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.6rem', flexWrap: 'wrap' }}>
+              <button
+                type="button"
+                onClick={() => setApunteInspeccionado(null)}
+                className="filter-btn"
+              >
+                Cerrar
+              </button>
+              <button
+                type="button"
+                onClick={() => handleEliminarApunte(apunteInspeccionado.id_apunte || apunteInspeccionado.id)}
+                className="btn-admin-delete"
+              >
+                🗑️ Confirmar y Eliminar Apunte
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
