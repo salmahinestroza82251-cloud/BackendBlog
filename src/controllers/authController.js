@@ -1,18 +1,8 @@
 const pool = require('../config/db');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const nodemailer = require('nodemailer');
 
-// Configurar transporter de Gmail con Contraseña de Aplicación
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-    },
-});
-
-// RF-01: Registro de Usuarios con envío de código de verificación
+// RF-01: Registro de Usuarios con envío de código de verificación vía Brevo API (HTTPS)
 exports.registrar = async (req, res, next) => {
     try {
         const { nombre_completo, correo_institucional, contraseña, rol, admin_key } = req.body;
@@ -63,13 +53,22 @@ exports.registrar = async (req, res, next) => {
             );
         }
 
-        // Enviar correo con el código mediante Gmail (Nodemailer)
-        try {
-            await transporter.sendMail({
-                from: `"Study Poli" <${process.env.EMAIL_USER}>`,
-                to: correoLimpio,
+        // Enviar correo mediante API HTTPS de Brevo (no usa puertos SMTP bloqueados por Railway)
+        const respuestaBrevo = await fetch('https://api.brevo.com/v3/smtp/email', {
+            method: 'POST',
+            headers: {
+                'accept': 'application/json',
+                'api-key': process.env.BREVO_API_KEY,
+                'content-type': 'application/json',
+            },
+            body: JSON.stringify({
+                sender: {
+                    name: 'Study Poli',
+                    email: process.env.BREVO_SENDER_EMAIL,
+                },
+                to: [{ email: correoLimpio, name: nombre_completo }],
                 subject: 'Tu código de verificación - Study Poli',
-                html: `
+                htmlContent: `
                     <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 16px;">
                         <h2 style="color: #059669; margin-bottom: 8px;">¡Bienvenido a Study Poli, ${nombre_completo}!</h2>
                         <p style="color: #334155; font-size: 15px;">Para confirmar que este correo es real y activar tu cuenta, ingresa el siguiente código en la plataforma:</p>
@@ -79,12 +78,15 @@ exports.registrar = async (req, res, next) => {
                         <p style="color: #64748b; font-size: 13px;">Si no solicitaste esta cuenta, puedes ignorar este mensaje.</p>
                     </div>
                 `,
-            });
-        } catch (errorEmail) {
-            console.error('Error al enviar correo con Gmail:', errorEmail);
+            }),
+        });
+
+        if (!respuestaBrevo.ok) {
+            const detalleError = await respuestaBrevo.json().catch(() => ({}));
+            console.error('Error al enviar correo con Brevo:', detalleError);
             return res.status(400).json({
                 success: false,
-                message: 'No se pudo enviar el correo de verificación. Revisa que el correo sea válido o intenta más tarde.',
+                message: 'No se pudo enviar el correo de verificación. Revisa el correo ingresado o la configuración del servidor.',
             });
         }
 
