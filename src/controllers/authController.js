@@ -1,9 +1,16 @@
 const pool = require('../config/db');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { Resend } = require('resend');
+const nodemailer = require('nodemailer');
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Configurar transporter de Gmail con Contraseña de Aplicación
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+    },
+});
 
 // RF-01: Registro de Usuarios con envío de código de verificación
 exports.registrar = async (req, res, next) => {
@@ -56,32 +63,28 @@ exports.registrar = async (req, res, next) => {
             );
         }
 
-        // Enviar correo con el código mediante Resend
-        const { error: errorEmail } = await resend.emails.send({
-            from: 'Study Poli <onboarding@resend.dev>',
-            to: [correoLimpio],
-            subject: 'Tu código de verificación - Study Poli',
-            html: `
-                <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 16px;">
-                    <h2 style="color: #059669; margin-bottom: 8px;">¡Bienvenido a Study Poli, ${nombre_completo}!</h2>
-                    <p style="color: #334155; font-size: 15px;">Para confirmar que este correo es real y activar tu cuenta, ingresa el siguiente código en la plataforma:</p>
-                    <div style="background-color: #f0fdf4; border: 2px dashed #059669; border-radius: 12px; padding: 16px; text-align: center; margin: 20px 0;">
-                        <span style="font-size: 32px; font-weight: bold; letter-spacing: 6px; color: #0f172a;">${codigoVerificacion}</span>
+        // Enviar correo con el código mediante Gmail (Nodemailer)
+        try {
+            await transporter.sendMail({
+                from: `"Study Poli" <${process.env.EMAIL_USER}>`,
+                to: correoLimpio,
+                subject: 'Tu código de verificación - Study Poli',
+                html: `
+                    <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 16px;">
+                        <h2 style="color: #059669; margin-bottom: 8px;">¡Bienvenido a Study Poli, ${nombre_completo}!</h2>
+                        <p style="color: #334155; font-size: 15px;">Para confirmar que este correo es real y activar tu cuenta, ingresa el siguiente código en la plataforma:</p>
+                        <div style="background-color: #f0fdf4; border: 2px dashed #059669; border-radius: 12px; padding: 16px; text-align: center; margin: 20px 0;">
+                            <span style="font-size: 32px; font-weight: bold; letter-spacing: 6px; color: #0f172a;">${codigoVerificacion}</span>
+                        </div>
+                        <p style="color: #64748b; font-size: 13px;">Si no solicitaste esta cuenta, puedes ignorar este mensaje.</p>
                     </div>
-                    <p style="color: #64748b; font-size: 13px;">Si no solicitaste esta cuenta, puedes ignorar este mensaje.</p>
-                </div>
-            `,
-        });
-
-        if (errorEmail) {
-            console.error('Error al enviar correo con Resend:', errorEmail);
-            let mensajeEspanol = 'No se pudo enviar el correo de verificación. Verifica que el correo sea válido.';
-            if (errorEmail.message && errorEmail.message.includes('only send testing emails')) {
-                mensajeEspanol = 'En modo de prueba solo se pueden enviar códigos al correo administrador registrado en Resend.';
-            }
+                `,
+            });
+        } catch (errorEmail) {
+            console.error('Error al enviar correo con Gmail:', errorEmail);
             return res.status(400).json({
                 success: false,
-                message: mensajeEspanol,
+                message: 'No se pudo enviar el correo de verificación. Revisa que el correo sea válido o intenta más tarde.',
             });
         }
 
